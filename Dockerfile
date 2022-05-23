@@ -1,14 +1,30 @@
-FROM python:3.7-alpine 
-MAINTAINER Sagi CD 
+FROM python:3.9-alpine3.13
+LABEL maintainer="Sagi CD"
 
 ENV PYTHONUNBUFFERED 1
 
-COPY ./Requirements.txt /Requirements.txt
-RUN pip install -r /Requirements.txt 
-
-RUN mkdir /api
-WORKDIR /api
+COPY ./requirements.txt /tmp/requirements.txt
+COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./api /api
+WORKDIR /api
+EXPOSE 8000
 
-RUN adduser -D user
-USER user
+RUN pip install -r /tmp/requirements.txt 
+
+ARG DEV=true
+RUN python -m venv /py && \
+    /py/bin/pip install --upgrade pip && \
+    /py/bin/pip install -r /tmp/requirements.txt && \
+    if [$DEV = true]; \
+        then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
+    fi && \
+    rm -rf /tmp && \
+    adduser \
+        --disabled-password \
+        --no-create-home \
+        django-user
+
+
+ENV PATH="/py/bin:$PATH"
+
+USER django-user
