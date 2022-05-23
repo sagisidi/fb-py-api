@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./api /api
+COPY ./.flake8 /api/.flake8
 WORKDIR /api
 EXPOSE 8000
 
